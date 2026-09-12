@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MOVIEBOX - 영화 정보 서비스</title>
+  <meta name="description" content="인기 영화, 현재 상영작, 개봉 예정작과 영화 상세정보를 확인하는 MOVIEBOX입니다." />
+  <meta name="theme-color" content="#09090d" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="MOVIEBOX" id="ogTitle" />
+  <meta property="og:description" content="인기 영화와 상세정보를 확인하세요." id="ogDescription" />
+  <meta property="og:image" content="" id="ogImage" />
+  <meta property="og:url" content="" id="ogUrl" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="appLoader" class="app-loader" role="status" aria-live="polite"><div class="app-loader-logo">MOVIEBOX</div><div class="spinner"></div><p>영화를 불러오는 중입니다.</p></div>
+  <div id="networkBanner" class="network-banner hidden" role="status">인터넷 연결이 끊어졌습니다.</div>
+
+  <header class="header">
+    <div class="header-inner">
+      <button class="logo" id="logoButton" type="button">MOVIEBOX</button>
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="#" class="nav-link active" data-view="home">홈</a>
+        <a href="#" class="nav-link" data-view="movies">영화</a>
+        <a href="#" class="nav-link" data-view="popular">인기작</a>
+        <a href="#" class="nav-link" data-view="favorites">즐겨찾기</a>
+      </nav>
+      <div class="search-box-wrap">
+        <div class="search-box"><input id="searchInput" type="search" placeholder="영화 검색" autocomplete="off" aria-autocomplete="list" aria-controls="searchSuggestions" aria-expanded="false" /><button id="searchButton" type="button">검색</button></div>
+        <div id="searchSuggestions" class="search-suggestions hidden" role="listbox"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="homeView">
+      <section class="hero" id="heroSection">
+        <button class="hero-arrow hero-prev" id="heroPrev" aria-label="이전 추천 영화">‹</button>
+        <div class="hero-content"><span class="hero-label">오늘의 추천</span><h1 id="heroTitle">오늘 뭐 볼까?</h1><div class="hero-meta"><span id="heroRating"></span><span id="heroYear"></span></div><p id="heroOverview">인기 영화부터 최신 작품까지 한곳에서 만나보세요.</p><div class="hero-actions"><button class="detail-button" id="heroDetailButton" type="button">상세보기</button><button class="secondary-button" id="heroMovieButton" type="button">인기 영화 보기</button></div><div class="hero-indicators" id="heroIndicators"></div></div>
+        <button class="hero-arrow hero-next" id="heroNext" aria-label="다음 추천 영화">›</button>
+      </section>
+
+      <section class="movie-section"><h2>🔥 인기 영화</h2><div class="slider-wrap"><button class="slider-btn slider-prev" data-target="popularMovies" aria-label="이전">‹</button><div class="movie-row" id="popularMovies"></div><button class="slider-btn slider-next" data-target="popularMovies" aria-label="다음">›</button></div></section>
+      <section class="movie-section"><h2>🎬 현재 상영 중</h2><div class="slider-wrap"><button class="slider-btn slider-prev" data-target="nowPlayingMovies" aria-label="이전">‹</button><div class="movie-row" id="nowPlayingMovies"></div><button class="slider-btn slider-next" data-target="nowPlayingMovies" aria-label="다음">›</button></div></section>
+      <section class="movie-section"><h2>📅 개봉 예정</h2><div class="slider-wrap"><button class="slider-btn slider-prev" data-target="upcomingMovies" aria-label="이전">‹</button><div class="movie-row" id="upcomingMovies"></div><button class="slider-btn slider-next" data-target="upcomingMovies" aria-label="다음">›</button></div></section>
+      <section class="movie-section"><h2>⭐ 평점 높은 영화</h2><div class="slider-wrap"><button class="slider-btn slider-prev" data-target="topRatedMovies" aria-label="이전">‹</button><div class="movie-row" id="topRatedMovies"></div><button class="slider-btn slider-next" data-target="topRatedMovies" aria-label="다음">›</button></div></section>
+    </div>
+
+    <div id="browseView" class="hidden">
+      <section class="browse-section"><div class="browse-header"><h1 id="browseTitle">영화 탐색</h1><p id="browseDescription">다양한 영화를 둘러보세요.</p></div>
+        <div class="movie-filters"><select id="filterGenre" aria-label="장르"><option value="">전체 장르</option><option value="28">액션</option><option value="35">코미디</option><option value="18">드라마</option><option value="27">공포</option><option value="878">SF</option><option value="16">애니메이션</option><option value="10749">로맨스</option><option value="53">스릴러</option></select><select id="filterYear" aria-label="연도"><option value="">전체 연도</option></select><select id="filterRating" aria-label="평점"><option value="">전체 평점</option><option value="8">8점 이상</option><option value="7">7점 이상</option><option value="6">6점 이상</option><option value="5">5점 이상</option></select><select id="filterSort" aria-label="정렬"><option value="popularity.desc">인기순</option><option value="vote_average.desc">평점순</option><option value="primary_release_date.desc">최신순</option><option value="primary_release_date.asc">오래된순</option></select><button id="filterReset" class="secondary-button" type="button">초기화</button></div>
+        <div id="browseMovies" class="movie-grid"></div><div id="infiniteScrollTrigger" class="infinite-scroll-trigger"><div class="scroll-loader">영화 불러오는 중...</div></div>
+      </section>
+    </div>
+  </main>
+
+  <section id="movieDetail" class="movie-detail hidden" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><button id="detailClose" class="detail-close" aria-label="영화 상세 닫기">×</button><div id="detailBody" class="detail-body"></div></section>
+
+  <div id="updateToast" class="update-toast hidden" role="status" aria-live="polite"><div><strong>새로운 버전이 있습니다.</strong><span>최신 MovieBox로 업데이트할 수 있습니다.</span></div><button id="updateAppButton" type="button">업데이트</button></div>
+
+  <footer class="site-footer"><div class="footer-inner"><div><div class="footer-logo">MOVIEBOX</div><p>영화 검색, 인기작, 상영작과 상세정보를 한곳에서 확인하세요.</p></div><div class="footer-links"><a href="#" data-footer-view="home">홈</a><a href="#" data-footer-view="movies">영화 탐색</a><a href="#" data-footer-view="favorites">즐겨찾기</a></div></div><div class="footer-tmdb">This product uses the TMDB API but is not endorsed or certified by TMDB.<br />영화 정보 및 이미지는 TMDB 데이터를 기반으로 제공됩니다.</div><div class="footer-bottom">© <span id="footerYear"></span> MOVIEBOX · v1.0.0</div></footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
