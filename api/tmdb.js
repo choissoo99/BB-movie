@@ -61,7 +61,7 @@ export default async function handler(req,res){
     case "detail": {
       const movieId=String(id);
       if(!/^\d+$/.test(movieId)) return res.status(400).json({error:"Invalid movie id."});
-      endpoint=`${base}/movie/${movieId}?language=ko-KR&append_to_response=credits,videos,similar,release_dates`;
+      endpoint=`${base}/movie/${movieId}?language=ko-KR&append_to_response=credits,videos,similar,recommendations,release_dates`;
       break;
     }
     case "now-playing":
