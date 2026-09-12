@@ -2,15 +2,39 @@ const ALLOWED_PATHS = new Set(["popular","search","genre","detail","now-playing"
 const ALLOWED_GENRES = new Set(["28","35","18","27","878","16","10749","53"]);
 const ALLOWED_SORTS = new Set(["popularity.desc","vote_average.desc","primary_release_date.desc","primary_release_date.asc"]);
 
+function buildTmdbRequest(endpoint, credential) {
+  const value = String(credential || "").trim().replace(/^Bearer\s+/i, "");
+  const looksLikeV3ApiKey = /^[a-f0-9]{32}$/i.test(value);
+
+  if (looksLikeV3ApiKey) {
+    const url = new URL(endpoint);
+    url.searchParams.set("api_key", value);
+    return {
+      url: url.toString(),
+      options: { headers: { accept: "application/json" } }
+    };
+  }
+
+  return {
+    url: endpoint,
+    options: {
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${value}`
+      }
+    }
+  };
+}
+
 export default async function handler(req,res){
   if(req.method!=="GET"){
     res.setHeader("Allow","GET");
     return res.status(405).json({error:"Method not allowed."});
   }
 
-  const token=process.env.TMDB_ACCESS_TOKEN;
-  if(!token){
-    return res.status(500).json({error:"TMDB_ACCESS_TOKEN is not configured."});
+  const credential=process.env.TMDB_ACCESS_TOKEN || process.env.TMDB_API_KEY;
+  if(!credential){
+    return res.status(500).json({error:"TMDB credential is not configured."});
   }
 
   const {path="popular",query="",genre="",id="",year="",rating="",sort="popularity.desc"}=req.query;
@@ -76,8 +100,14 @@ export default async function handler(req,res){
   }
 
   try{
-    const response=await fetch(endpoint,{headers:{accept:"application/json",Authorization:`Bearer ${token}`}});
+    const request=buildTmdbRequest(endpoint, credential);
+    const response=await fetch(request.url, request.options);
     const data=await response.json();
+
+    if(!response.ok){
+      console.error("TMDB API error", response.status, data?.status_message || data?.error || "Unknown error");
+    }
+
     const cache=path==="detail"?"s-maxage=1800, stale-while-revalidate=3600":path==="top-rated"?"s-maxage=3600, stale-while-revalidate=7200":"s-maxage=300, stale-while-revalidate=900";
     res.setHeader("Cache-Control",cache);
     return res.status(response.status).json(data);
